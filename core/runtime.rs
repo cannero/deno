@@ -1521,7 +1521,6 @@ pub mod tests {
 
   enum Mode {
     Async,
-    AsyncUnref,
     AsyncZeroCopy(u8),
     OverflowReqSync,
     OverflowResSync,
@@ -1545,17 +1544,6 @@ pub mod tests {
         assert_eq!(bufs[0][0], 42);
         let buf = vec![43u8].into_boxed_slice();
         Op::Async(futures::future::ready(buf).boxed())
-      }
-      Mode::AsyncUnref => {
-        assert_eq!(bufs.len(), 1);
-        assert_eq!(bufs[0].len(), 1);
-        assert_eq!(bufs[0][0], 42);
-        let fut = async {
-          // This future never finish.
-          futures::future::pending::<()>().await;
-          vec![43u8].into_boxed_slice()
-        };
-        Op::AsyncUnref(fut.boxed())
       }
       Mode::AsyncZeroCopy(count) => {
         assert_eq!(bufs.len(), count as usize);
